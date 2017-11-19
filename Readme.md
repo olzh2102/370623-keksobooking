@@ -1,7 +1,7 @@
 # Личный проект «Кексобукинг» [![Build status][travis-image]][travis-url]
 
 * Студент: [Olzhas Kurikov](https://up.htmlacademy.ru/javascript/11/user/370623).
-* Наставник: `Неизвестно`.
+* Наставник: `Магомед Кандаев`.
 
 ---
 
