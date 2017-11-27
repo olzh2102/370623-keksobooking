@@ -57,7 +57,7 @@ var PIN_HEIGHT = 40;
 
 // --- Управление DOM-элементами ---
 var map = document.querySelector('.map');
-map.classList.remove('.map--faded');
+map.classList.remove('map--faded');
 var mapPinsItem = document.querySelector('.map__pins');
 var mapTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var mapCardTemplate = document.querySelector('template').content.querySelector('article.map__card');
@@ -69,12 +69,12 @@ var generateRandomNumber = function (max, min) {
 
 // --- Генерация случайного элемента массива ---
 var generateRandomElement = function (array) {
-  return array[generateRandomNumber(0, array.length - 1)];
+  return array[generateRandomNumber(0, array.length)];
 };
 
 // --- Генерация специфического элемента массива ---
 var generateSpecificNumber = function (array) {
-  return array.splice(generateRandomNumber(0, array.length - 1), 1);
+  return array.splice(generateRandomNumber(0, array.length), 1).join('');
 };
 
 // --- Случайны порядок элементов массива ---
@@ -132,9 +132,9 @@ var generateRoomsGuestsString = function (rooms, guests) {
   if (rooms > 4) {
     roomStr = 'комнат';
   } else {
-    roomStr = rooms === 1 ? ' комната' : 'комнаты';
+    roomStr = rooms === 1 ? ' комната' : ' комнаты';
   }
-  var guestStr = guests === 1 ? ' гостя' : 'гостей';
+  var guestStr = guests === 1 ? ' гостя' : ' гостей';
   return rooms + roomStr + ' для ' + guests + guestStr;
 };
 
@@ -149,12 +149,9 @@ var generateFeaturesString = function (features) {
 // --- рендер ПИНА ---
 var renderPinMap = function (pinMap) {
   var pinMapElement = mapTemplate.cloneNode(true);
-  var pinMapImgElement = pinMapElement.querySelector('img');
-  var mapPinX = (+pinMapImgElement.getAttribute('width') + PIN_WIDTH) / 2;
-  var mapPinY = +pinMapImgElement.getAttribute('height') + PIN_HEIGHT;
-
-  pinMapElement.setAttribute('style', 'left: ' + (pinMap.x - mapPinX) + 'px; top: ' + (pinMap.y - mapPinY) + 'px;');
-  pinMapImgElement.setAttribute('src', pinMap.author.avatar);
+  pinMapElement.querySelector('img').src = pinMap.author.avatar;
+  pinMapElement.style.left = (pinMap.location.x + PIN_WIDTH / 2) + 'px';
+  pinMapElement.style.top = (pinMap.location.y + PIN_HEIGHT) + 'px';
 
   return pinMapElement;
 };
@@ -165,12 +162,12 @@ var renderCardMap = function (ad) {
   cardMapElement.querySelector('.popup__avatar').src = ad.author.avatar;
   cardMapElement.querySelector('h3').textContent = ad.offer.title;
   cardMapElement.querySelector('h3+p').textContent = ad.offer.address;
-  cardMapElement.querySelector('popup__price').textContent = ad.offer.price + '\u20bd/ночь';
+  cardMapElement.querySelector('.popup__price').textContent = ad.offer.price + '\u20bd/ночь';
   cardMapElement.querySelector('h4').textContent = AD_RUS_TYPES[ad.offer.type];
   cardMapElement.querySelector('h4+p').textContent = generateRoomsGuestsString(ad.offer.rooms, ad.offer.guests);
   cardMapElement.querySelector('p:nth-child(4)').textContent = 'Заезд после ' + ad.offer.checkin + ', выезд до ' + ad.offer.checkout;
   cardMapElement.querySelector('.popup__features').innerHTML = '';
-  cardMapElement.querySelector('.popup__features').appendChild(generateFeaturesString(ad.offer.features));
+  cardMapElement.querySelector('.popup__features').innerHTML = generateFeaturesString(ad.offer.features);
   cardMapElement.querySelector('p:nth-of-type(5)').textContent = ad.offer.description;
 
   return cardMapElement;
