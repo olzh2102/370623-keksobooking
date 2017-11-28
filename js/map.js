@@ -94,6 +94,7 @@ var generateRandomArray = function (source, length) {
 // --- Создание объявления ---
 var generateAds = function (count) {
   var ads = [];
+  var adTitles = generateRandomArray(AD_TITLES, count);
 
   for (var i = 0; i < count; i++) {
     var randomFeatures = generateRandomArray(AD_FEATURES, 8);
@@ -105,7 +106,7 @@ var generateAds = function (count) {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
       },
       offer: {
-        title: AD_TITLES[i],
+        title: generateSpecificNumber(adTitles),
         address: x + ',' + y,
         price: generateRandomNumber(PRICE_MIN, PRICE_MAX),
         type: generateRandomElement(AD_TYPES),
@@ -114,7 +115,7 @@ var generateAds = function (count) {
         checkin: generateRandomElement(AD_CHECK_INS),
         checkout: generateRandomElement(AD_CHECK_OUTS),
         features: randomFeatures.slice(0, generateRandomNumber(1, AD_FEATURES.length)),
-        description: [],
+        description: '',
         photos: []
       },
       location: {
