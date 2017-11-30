@@ -1,4 +1,6 @@
 'use strict';
+var ESC_KEY = 27;
+var ENTER_KEY = 13;
 
 var AD_TITLES = [
   'Большая уютная квартира',
@@ -56,11 +58,34 @@ var PIN_WIDTH = 40;
 var PIN_HEIGHT = 40;
 
 // --- Управление DOM-элементами ---
-var map = document.querySelector('.map');
-map.classList.remove('map--faded');
+
 var mapPinsItem = document.querySelector('.map__pins');
 var mapTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var mapCardTemplate = document.querySelector('template').content.querySelector('article.map__card');
+var pinMain = document.querySelector('.map__pin--main');
+var map = document.querySelector('.map');
+var noticeForm = document.querySelector('.notice__form');
+
+var nearByAds;
+var popup;
+var popupClose;
+var mapFaded = true;
+
+// --- Активация главной страницы нажатием пина ---
+var mouseupPageActivater = function () {
+  if (mapFaded) {
+    map.classList.remove('map--faded');
+    renderOtherAds();
+    var fieldsets = noticeForm.querySelectorAll('fieldset');
+    noticeForm.classList.remove('notice__form--disabled');
+
+    for (var i = 0; i < fieldsets.length; i++) {
+      fieldsets[i].disabled = false;
+    }
+  }
+};
+
+pinMain.addEventListener('mouseup', mouseupPageActivater);
 
 // --- Генерация случайных данных в данном диапазоне ---
 var generateRandomNumber = function (max, min) {
@@ -181,13 +206,10 @@ var renderCardOffer = function (offer) {
 };
 
 var renderOtherAds = function () {
-  var nearByAds = generateAds(8);
+  nearByAds = generateAds(8);
   var fragment = document.createDocumentFragment();
   nearByAds.forEach(function (item) {
     fragment.appendChild(renderPinMap(item));
   });
   mapPinsItem.appendChild(fragment);
-  renderCardOffer(nearByAds[0]);
 };
-
-renderOtherAds();
