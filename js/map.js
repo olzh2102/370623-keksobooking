@@ -1,5 +1,8 @@
 'use strict';
 
+var ESC_KEY = 27;
+var ENTER_KEY = 13;
+
 var AD_TITLES = [
   'Большая уютная квартира',
   'Маленькая неуютная квартира',
@@ -55,12 +58,117 @@ var MAX_GUEST_NUMBER = 10;
 var PIN_WIDTH = 40;
 var PIN_HEIGHT = 40;
 
+var ERROR_ON_VALIDATION = '0 0 5px 2px red';
+
 // --- Управление DOM-элементами ---
-var map = document.querySelector('.map');
-map.classList.remove('map--faded');
+
 var mapPinsItem = document.querySelector('.map__pins');
 var mapTemplate = document.querySelector('template').content.querySelector('.map__pin');
 var mapCardTemplate = document.querySelector('template').content.querySelector('article.map__card');
+var pinMain = document.querySelector('.map__pin--main');
+var map = document.querySelector('.map');
+var noticeForm = document.querySelector('.notice__form');
+
+var nearByAds;
+var popup;
+var closePopup;
+var mapFaded = true;
+
+// --- Активация главной страницы нажатием главного пина ---
+var mouseupPageActivater = function () {
+  if (mapFaded) {
+    map.classList.remove('map--faded');
+    renderOtherAds();
+    var fieldsets = noticeForm.querySelectorAll('fieldset');
+    noticeForm.classList.remove('notice__form--disabled');
+
+    for (var i = 0; i < fieldsets.length; i++) {
+      fieldsets[i].disabled = false;
+    }
+    mapFaded = false;
+  }
+};
+
+pinMain.addEventListener('mouseup', mouseupPageActivater);
+
+// --- Открытие / Закрытие карточки объявления при нажатии на пин на карте ---
+var identifyIndex = function (src) {
+  var index = null;
+  nearByAds.forEach(function (item, i) {
+    if (src.indexOf(item.author.avatar) >= 0) {
+      index = i;
+    }
+  });
+  return index;
+};
+
+var popupOpen = function (src) {
+  var identificationIndex = identifyIndex(src);
+
+  if (identificationIndex !== null) {
+    renderCardOffer(nearByAds[identificationIndex]);
+    popup = document.querySelector('.popup');
+    closePopup = popup.querySelector('.popup__close');
+    closePopup.addEventListener('click', popupCloser);
+    document.addEventListener('keydown', popupEscCloser);
+    closePopup.addEventListener('keydown', popupEnterCloser);
+  }
+};
+
+var popupClose = function () {
+  var pinActive = mapPinsItem.querySelector('.map__pin--active');
+
+  if (pinActive) {
+    pinActive.classList.remove('map__pin--active');
+  }
+  if (popup) {
+    map.removeChild(popup);
+    popup = null;
+    closePopup.removeEventListener('click', popupCloser);
+    document.removeEventListener('keydown', popupEscCloser);
+    closePopup.removeEventListener('keydown', popupEnterCloser);
+  }
+};
+
+var popupCloser = function () {
+  popupClose();
+};
+var popupEscCloser = function () {
+  if (event.keyCode === ESC_KEY) {
+    popupClose();
+  }
+};
+var popupEnterCloser = function () {
+  if (event.keyCode === ENTER_KEY) {
+    popupClose();
+  }
+};
+
+var mapPinClicker = function (event) {
+  popupClose();
+
+  if (event.target.parentNode.classList.contains('map__pin')) {
+    event.target.parentNode.classList.add('map__pin--active');
+    popupOpen(event.target.src);
+  } else if (event.target.classList.contains('map__pin')) {
+    event.target.classList.add('map__pin--active');
+    popupOpen(event.target.children[0].src);
+  }
+};
+
+var mapPinPresser = function (event) {
+  if (event.keyCode === ENTER_KEY) {
+    if (event.target.classList.contains('map__pin')) {
+      event.target.parentNode.classList.add('map__pin--active');
+      popupClose();
+      event.target.classList.add('map__pin--active');
+      popupOpen(event.target.children[0].src);
+    }
+  }
+};
+
+mapPinsItem.addEventListener('click', mapPinClicker);
+mapPinsItem.addEventListener('keydown', mapPinPresser);
 
 // --- Генерация случайных данных в данном диапазоне ---
 var generateRandomNumber = function (max, min) {
@@ -181,13 +289,57 @@ var renderCardOffer = function (offer) {
 };
 
 var renderOtherAds = function () {
-  var nearByAds = generateAds(8);
+  nearByAds = generateAds(8);
   var fragment = document.createDocumentFragment();
   nearByAds.forEach(function (item) {
     fragment.appendChild(renderPinMap(item));
   });
   mapPinsItem.appendChild(fragment);
-  renderCardOffer(nearByAds[0]);
 };
 
-renderOtherAds();
+// --- Валидация формы ---
+var title = document.querySelector('#title');
+var address = document.querySelector('#address');
+var price = document.querySelector('#price');
+
+var validityChecker = function (field) {
+  var currentField = field;
+
+  if (!currentField.validity.valid) {
+    currentField.style.boxShadow = ERROR_ON_VALIDATION;
+
+    if (currentField.validity.valueMissing) {
+      currentField.setCustomValidity('это поле должно быть заполненным');
+    } else if (currentField.validity.tooShort || currentField.value.length < currentField.minLength) {
+      currentField.setCustomValidity('название не может содержать менее ' + currentField.minLength + ' символов');
+    } else if (currentField.validity.tooLong) {
+      currentField.setCustomValidity('название не может содержать более ' + currentField.maxLength + ' символов');
+    } else if (currentField.validity.rangeUnderflow) {
+      currentField.setCustomValidity('число должно находится в диапазоне от ' + currentField.min + ' до ' + currentField.max);
+    } else {
+      currentField.setCustomValidity('');
+      currentField.style.boxShadow = '';
+    }
+  }
+};
+
+title.addEventListener('input', function () {
+  validityChecker(title);
+});
+title.addEventListener('change', function () {
+  validityChecker(title);
+});
+
+address.addEventListener('invalid', function () {
+  validityChecker(address);
+});
+address.addEventListener('change', function () {
+  validityChecker(address);
+});
+
+price.addEventListener('invalid', function () {
+  validityChecker(price);
+});
+price.addEventListener('change', function () {
+  validityChecker(price);
+});
