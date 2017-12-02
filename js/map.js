@@ -60,6 +60,13 @@ var PIN_HEIGHT = 40;
 
 var ERROR_ON_VALIDATION = '0 0 5px 2px red';
 
+var houseMinPrice = {
+  bungalo: 0,
+  flat: 1000,
+  house: 5000,
+  palace: 10000
+};
+
 // --- Управление DOM-элементами ---
 
 var mapPinsItem = document.querySelector('.map__pins');
@@ -343,3 +350,78 @@ price.addEventListener('invalid', function () {
 price.addEventListener('change', function () {
   validityChecker(price);
 });
+
+// --- Зависимость ---
+var timeIn = document.querySelector('#timein');
+var timeOut = document.querySelector('#timeout');
+var type = document.querySelector('#type');
+var roomNumber = document.querySelector('#room_number');
+var capacity = document.querySelector('#capacity');
+var submit = document.querySelector('.form__submit');
+
+// --- Синхронизация времени въезда/выезда ---
+var syncTimeInTimeOut = function (mainSelect, dependSelect) {
+  dependSelect[mainSelect.selectedIndex].selected = true;
+};
+timeIn.addEventListener('change', function (event) {
+  syncTimeInTimeOut(event.target, timeOut);
+});
+timeOut.addEventListener('change', function (event) {
+  syncTimeInTimeOut(event.target, timeIn);
+});
+
+// --- Синхронизация типы домов и цены ---
+var syncHousePrice = function (event) {
+  price.min = houseMinPrice[event.target.value];
+
+  if (+price.value < +price.min) {
+    price.value = price.min;
+  }
+};
+
+type.addEventListener('change', syncHousePrice);
+
+// --- Синхронизация число комнат и гостей ---
+var syncRoomGuest = function (event) {
+  var roomNumberCurrent = event.target.value;
+  var capacitySelect = null;
+
+  for (var i = 0; i < capacity.options.length; i++) {
+    var option = capacity.options[i];
+    var valueOption = +option.value;
+
+    if (roomNumberCurrent === 100 && valueOption !== 0 || roomNumberCurrent !== 100 && (valueOption > roomNumberCurrent || valueOption === 0)) {
+      option.setAttribute('hidden', '');
+    } else {
+      option.removeAttribute('hidden');
+
+      if (capacitySelect === null) {
+        capacitySelect = i;
+      }
+    }
+  }
+  capacity.selectedIndex = capacitySelect;
+};
+
+roomNumber.addEventListener('change', syncRoomGuest);
+
+// --- Обработка события клика по submit ---
+var formValidator = function () {
+  var formFields = noticeForm.elements;
+  var validAll = true;
+
+  for (var i = 0; i < formFields.length; i++) {
+    if (!formFields[i].validity.valid) {
+      formFields[i].style.boxShadow = ERROR_ON_VALIDATION;
+      validAll = false;
+    } else {
+      formFields[i].style.boxShadow = '';
+    }
+  }
+  if (validAll) {
+    noticeForm.submit();
+    noticeForm.reset();
+  }
+};
+
+submit.addEventListener('click', formValidator);
