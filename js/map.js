@@ -383,24 +383,13 @@ type.addEventListener('change', syncHousePrice);
 
 // --- Синхронизация число комнат и гостей ---
 var syncRoomGuest = function (event) {
-  var roomNumberCurrent = event.target.value;
-  var capacitySelect = null;
-
-  for (var i = 0; i < capacity.options.length; i++) {
-    var option = capacity.options[i];
-    var valueOption = +option.value;
-
-    if (roomNumberCurrent === 100 && valueOption !== 0 || roomNumberCurrent !== 100 && (valueOption > roomNumberCurrent || valueOption === 0)) {
-      option.setAttribute('hidden', '');
-    } else {
-      option.removeAttribute('hidden');
-
-      if (capacitySelect === null) {
-        capacitySelect = i;
-      }
-    }
+  if (event.target.value === '2') {
+    capacity.value = 2;
+  } else if (event.target.value === '3') {
+    capacity.value = 3;
+  } else {
+    capacity.value = 0;
   }
-  capacity.selectedIndex = capacitySelect;
 };
 
 roomNumber.addEventListener('change', syncRoomGuest);
