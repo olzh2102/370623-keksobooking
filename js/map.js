@@ -1,4 +1,6 @@
 'use strict';
+var ESC_KEY = 27;
+var ENTER_KEY = 13;
 
 var ESC_KEY = 27;
 var ENTER_KEY = 13;
@@ -303,6 +305,7 @@ var renderOtherAds = function () {
   });
   mapPinsItem.appendChild(fragment);
 };
+<<<<<<< HEAD
 
 // --- Валидация формы ---
 var title = document.querySelector('#title');
@@ -414,3 +417,5 @@ var formValidator = function () {
 };
 
 submit.addEventListener('click', formValidator);
+=======
+>>>>>>> master
