@@ -2,9 +2,6 @@
 var ESC_KEY = 27;
 var ENTER_KEY = 13;
 
-var ESC_KEY = 27;
-var ENTER_KEY = 13;
-
 var AD_TITLES = [
   'Большая уютная квартира',
   'Маленькая неуютная квартира',
@@ -305,7 +302,6 @@ var renderOtherAds = function () {
   });
   mapPinsItem.appendChild(fragment);
 };
-<<<<<<< HEAD
 
 // --- Валидация формы ---
 var title = document.querySelector('#title');
@@ -417,5 +413,3 @@ var formValidator = function () {
 };
 
 submit.addEventListener('click', formValidator);
-=======
->>>>>>> master
