@@ -1,4 +1,5 @@
 'use strict';
+
 var ESC_KEY = 27;
 var ENTER_KEY = 13;
 
@@ -22,14 +23,8 @@ var AD_RUS_TYPES = {
   'bungalo': 'Бунгало'
 };
 
-var AD_CHECK_INS = [
-  '12:00',
-  '13:00',
-  '14:00'];
-var AD_CHECK_OUTS = [
-  '12:00',
-  '13:00',
-  '14:00'];
+var AD_CHECK_INS = ['12:00', '13:00', '14:00'];
+var AD_CHECK_OUTS = ['12:00', '13:00', '14:00'];
 
 var AD_FEATURES = [
   'wifi',
@@ -59,6 +54,7 @@ var PIN_HEIGHT = 40;
 
 var ERROR_ON_VALIDATION = '0 0 5px 2px red';
 
+var nearByAds;
 var houseMinPrice = {
   bungalo: 0,
   flat: 1000,
@@ -66,132 +62,34 @@ var houseMinPrice = {
   palace: 10000
 };
 
-// --- Управление DOM-элементами ---
-
-var mapPinsItem = document.querySelector('.map__pins');
-var mapTemplate = document.querySelector('template').content.querySelector('.map__pin');
-var mapCardTemplate = document.querySelector('template').content.querySelector('article.map__card');
-var pinMain = document.querySelector('.map__pin--main');
+// Find map
 var map = document.querySelector('.map');
-var noticeForm = document.querySelector('.notice__form');
 
-var nearByAds;
-var popup;
-var closePopup;
-var mapFaded = true;
+// Find map pins div
+var mapPinsItem = document.querySelector('.map__pins');
 
-// --- Активация главной страницы нажатием главного пина ---
-var mouseupPageActivater = function () {
-  if (mapFaded) {
-    map.classList.remove('map--faded');
-    renderOtherAds();
-    var fieldsets = noticeForm.querySelectorAll('fieldset');
-    noticeForm.classList.remove('notice__form--disabled');
+// Find map pin template
+var mapTemplate = document.querySelector('template').content.querySelector('.map__pin');
+// Find card template
+var mapCardTemplate = document.querySelector('template').content.querySelector('article.map__card');
+var cardMapElement = mapCardTemplate.cloneNode(true);
 
-    for (var i = 0; i < fieldsets.length; i++) {
-      fieldsets[i].disabled = false;
-    }
-    mapFaded = false;
-  }
-};
-
-pinMain.addEventListener('mouseup', mouseupPageActivater);
-
-// --- Открытие / Закрытие карточки объявления при нажатии на пин на карте ---
-var identifyIndex = function (src) {
-  var index = null;
-  nearByAds.forEach(function (item, i) {
-    if (src.indexOf(item.author.avatar) >= 0) {
-      index = i;
-    }
-  });
-  return index;
-};
-
-var popupOpen = function (src) {
-  var identificationIndex = identifyIndex(src);
-
-  if (identificationIndex !== null) {
-    renderCardOffer(nearByAds[identificationIndex]);
-    popup = document.querySelector('.popup');
-    closePopup = popup.querySelector('.popup__close');
-    closePopup.addEventListener('click', popupCloser);
-    document.addEventListener('keydown', popupEscCloser);
-    closePopup.addEventListener('keydown', popupEnterCloser);
-  }
-};
-
-var popupClose = function () {
-  var pinActive = mapPinsItem.querySelector('.map__pin--active');
-
-  if (pinActive) {
-    pinActive.classList.remove('map__pin--active');
-  }
-  if (popup) {
-    map.removeChild(popup);
-    popup = null;
-    closePopup.removeEventListener('click', popupCloser);
-    document.removeEventListener('keydown', popupEscCloser);
-    closePopup.removeEventListener('keydown', popupEnterCloser);
-  }
-};
-
-var popupCloser = function () {
-  popupClose();
-};
-var popupEscCloser = function () {
-  if (event.keyCode === ESC_KEY) {
-    popupClose();
-  }
-};
-var popupEnterCloser = function () {
-  if (event.keyCode === ENTER_KEY) {
-    popupClose();
-  }
-};
-
-var mapPinClicker = function (event) {
-  popupClose();
-
-  if (event.target.parentNode.classList.contains('map__pin')) {
-    event.target.parentNode.classList.add('map__pin--active');
-    popupOpen(event.target.src);
-  } else if (event.target.classList.contains('map__pin')) {
-    event.target.classList.add('map__pin--active');
-    popupOpen(event.target.children[0].src);
-  }
-};
-
-var mapPinPresser = function (event) {
-  if (event.keyCode === ENTER_KEY) {
-    if (event.target.classList.contains('map__pin')) {
-      event.target.parentNode.classList.add('map__pin--active');
-      popupClose();
-      event.target.classList.add('map__pin--active');
-      popupOpen(event.target.children[0].src);
-    }
-  }
-};
-
-mapPinsItem.addEventListener('click', mapPinClicker);
-mapPinsItem.addEventListener('keydown', mapPinPresser);
-
-// --- Генерация случайных данных в данном диапазоне ---
+// Generate random number
 var generateRandomNumber = function (max, min) {
   return Math.floor((max - min + 1) * Math.random()) + min;
 };
 
-// --- Генерация случайного элемента массива ---
+// Generate random index of array
 var generateRandomElement = function (array) {
   return array[generateRandomNumber(0, array.length)];
 };
 
-// --- Генерация специфического элемента массива ---
+// Generate specific index of array
 var generateSpecificNumber = function (array) {
   return array.splice(generateRandomNumber(0, array.length), 1).join('');
 };
 
-// --- Случайны порядок элементов массива ---
+// Generate random order array
 var generateRandomArray = function (source, length) {
   length = length || source.length;
   var array = source.slice();
@@ -208,6 +106,8 @@ var generateRandomArray = function (source, length) {
 // --- Создание объявления ---
 var generateAds = function (count) {
   var ads = [];
+
+  // Shuffle titles array
   var adTitles = generateRandomArray(AD_TITLES, count);
 
   for (var i = 0; i < count; i++) {
@@ -215,7 +115,7 @@ var generateAds = function (count) {
     var x = generateRandomNumber(MIN_LOCATION_X, MAX_LOCATION_X);
     var y = generateRandomNumber(MIN_LOCATION_Y, MAX_LOCATION_Y);
 
-    var ad = {
+    ads[i] = {
       author: {
         avatar: 'img/avatars/user0' + (i + 1) + '.png'
       },
@@ -237,11 +137,31 @@ var generateAds = function (count) {
         y: y
       }
     };
-    ads[i] = ad;
   }
   return ads;
 };
 
+// Create pin
+var renderPinMap = function (pinMap) {
+  var pinMapElement = mapTemplate.cloneNode(true);
+  pinMapElement.querySelector('img').src = pinMap.author.avatar;
+  pinMapElement.style.left = (pinMap.location.x + PIN_WIDTH / 2) + 'px';
+  pinMapElement.style.top = (pinMap.location.y + PIN_HEIGHT) + 'px';
+
+  return pinMapElement;
+};
+
+// Generate map-pins
+var renderOtherAds = function () {
+  nearByAds = generateAds(8);
+  var fragment = document.createDocumentFragment();
+  nearByAds.forEach(function (item) {
+    fragment.appendChild(renderPinMap(item));
+  });
+  mapPinsItem.appendChild(fragment);
+};
+
+// Create card offer
 var generateRoomsGuestsString = function (rooms, guests) {
   var roomStr;
   if (rooms > 4) {
@@ -261,19 +181,8 @@ var generateFeaturesString = function (features) {
   return featuresStr;
 };
 
-// --- рендер ПИНА ---
-var renderPinMap = function (pinMap) {
-  var pinMapElement = mapTemplate.cloneNode(true);
-  pinMapElement.querySelector('img').src = pinMap.author.avatar;
-  pinMapElement.style.left = (pinMap.location.x + PIN_WIDTH / 2) + 'px';
-  pinMapElement.style.top = (pinMap.location.y + PIN_HEIGHT) + 'px';
-
-  return pinMapElement;
-};
-
-// --- рендер карточки объявлений ---
 var renderCardMap = function (ad) {
-  var cardMapElement = mapCardTemplate.cloneNode(true);
+
   cardMapElement.querySelector('.popup__avatar').src = ad.author.avatar;
   cardMapElement.querySelector('h3').textContent = ad.offer.title;
   cardMapElement.querySelector('h3+p').textContent = ad.offer.address;
@@ -288,22 +197,129 @@ var renderCardMap = function (ad) {
   return cardMapElement;
 };
 
+// Output card offer
 var renderCardOffer = function (offer) {
   var fragment = document.createDocumentFragment();
   fragment.appendChild(renderCardMap(offer));
   map.appendChild(fragment);
 };
 
-var renderOtherAds = function () {
-  nearByAds = generateAds(8);
-  var fragment = document.createDocumentFragment();
-  nearByAds.forEach(function (item) {
-    fragment.appendChild(renderPinMap(item));
-  });
-  mapPinsItem.appendChild(fragment);
+// Main pin
+var pinMain = document.querySelector('.map__pin--main');
+var noticeForm = document.querySelector('.notice__form');
+var popup;
+var closePopup;
+
+// Map faded by default (pins are not shown / form is disabled)
+var mapFaded = true;
+
+// Page activator
+var mouseupPageActivater = function () {
+  if (mapFaded) {
+    // Show map
+    map.classList.remove('map--faded');
+    renderOtherAds();
+    // Activate notice form
+    var fieldsets = noticeForm.querySelectorAll('fieldset');
+    noticeForm.classList.remove('notice__form--disabled');
+    // Remove attribute disable
+    for (var i = 0; i < fieldsets.length; i++) {
+      fieldsets[i].disabled = false;
+    }
+    // Set to false, otherwise keeps adding pins on main pin press
+    mapFaded = false;
+  }
 };
 
-// --- Валидация формы ---
+// Page activation on mouseup
+pinMain.addEventListener('mouseup', mouseupPageActivater);
+
+// Identify index of pins on map
+var identifyIndex = function (src) {
+  var index = null;
+  nearByAds.forEach(function (item, i) {
+    if (src.indexOf(item.author.avatar) >= 0) {
+      index = i;
+    }
+  });
+  return index;
+};
+
+// Opened card offer
+var popupOpen = function (src) {
+  // Identified index of pin
+  var identificationIndex = identifyIndex(src);
+
+  if (identificationIndex !== null) {
+    // Creartes the card and its properties / events
+    renderCardOffer(nearByAds[identificationIndex]);
+    popup = document.querySelector('.popup');
+    closePopup = popup.querySelector('.popup__close');
+    closePopup.addEventListener('click', popupCloser);
+    closePopup.addEventListener('keydown', popupEnterCloser);
+    document.addEventListener('keydown', popupEscCloser);
+  }
+};
+
+// Closed card offer
+var popupClose = function () {
+  // Finds pins with class active
+  var pinActive = mapPinsItem.querySelector('.map__pin--active');
+
+  if (pinActive) {
+    pinActive.classList.remove('map__pin--active');
+  }
+  if (popup) {
+    map.removeChild(popup);
+    popup = null;
+    closePopup.removeEventListener('click', popupCloser);
+    document.removeEventListener('keydown', popupEscCloser);
+    closePopup.removeEventListener('keydown', popupEnterCloser);
+  }
+};
+
+// Events on click, enter, esc to close card offer
+var popupCloser = function () {
+  popupClose();
+};
+var popupEscCloser = function () {
+  if (event.keyCode === ESC_KEY) {
+    popupClose();
+  }
+};
+var popupEnterCloser = function () {
+  if (event.keyCode === ENTER_KEY) {
+    popupClose();
+  }
+};
+
+// Events on click, enter to open card offer on press map pin
+var mapPinClicker = function (event) {
+  // popupClose();
+
+  if (event.target.parentNode.classList.contains('map__pin')) {
+    event.target.parentNode.classList.add('map__pin--active');
+    popupOpen(event.target.src);
+  } else if (event.target.classList.contains('map__pin')) {
+    event.target.classList.add('map__pin--active');
+    popupOpen(event.target.children[0].src);
+  }
+};
+var mapPinPresser = function (event) {
+  if (event.keyCode === ENTER_KEY) {
+    if (event.target.classList.contains('map__pin')) {
+      event.target.parentNode.classList.add('map__pin--active');
+      popupClose();
+      event.target.classList.add('map__pin--active');
+      popupOpen(event.target.children[0].src);
+    }
+  }
+};
+
+mapPinsItem.addEventListener('click', mapPinClicker);
+mapPinsItem.addEventListener('keydown', mapPinPresser);
+
+// Form validation
 var title = document.querySelector('#title');
 var address = document.querySelector('#address');
 var price = document.querySelector('#price');
