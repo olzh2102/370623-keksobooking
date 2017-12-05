@@ -58,14 +58,13 @@
 
   // Draggable pin
   var address = document.querySelector('#address');
-
   pinMain.style.zIndex = 2;
 
-  var draggingLimit = {
-    xMin: 0,
-    xMax: map.clientWidth,
-    yMin: COORDINATE_LIMITS.top - PIN_SIZES.height / 2,
-    yMax: COORDINATE_LIMITS.bottom - PIN_SIZES.height / 2,
+  var dragPinLimits = {
+    minX: 0,
+    minY: COORDINATE_LIMITS.top - PIN_SIZES.height / 2,
+    maxX: map.clientWidth,
+    maxY: COORDINATE_LIMITS.bottom - PIN_SIZES.height / 2
   };
 
   // Identify initial coordinates
@@ -74,53 +73,57 @@
     y: pinMain.offsetTop
   };
 
-  // Display initial coordinates of main pin of address fieldset
-  address.value = 'x: ' + addressFieldCoord.x + ' , ' + 'y: ' + (addressFieldCoord.y + PIN_SIZES.height / 2);
+  // Set initial coordinates into address field
+  address.value = 'x: ' + addressFieldCoord.x + ', ' + 'y: ' + (addressFieldCoord.y + PIN_SIZES.height / 2);
 
-  pinMain.addEventListener('mousedown', function (event) {
-    event.preventDefault();
+  pinMain.addEventListener('mousedown', function (evt) {
+    evt.preventDefault();
 
     var startingCoords = {
-      x: event.clientX,
-      y: event.clientY
+      x: evt.clientX,
+      y: evt.clientY
     };
 
-    var mouseMover = function (moveEvent) {
-      moveEvent.preventDefault();
+    var mouseMover = function (moveEvt) {
+      moveEvt.preventDefault();
 
       var shift = {
-        x: startingCoords.x - moveEvent.clientX,
-        y: startingCoords.y - moveEvent.clientY
+        x: startingCoords.x - moveEvt.clientX,
+        y: startingCoords.y - moveEvt.clientY
       };
 
       startingCoords = {
-        x: moveEvent.clientX,
-        y: moveEvent.clientY
+        x: moveEvt.clientX,
+        y: moveEvt.clientY
       };
 
-      // Identify new coordinates for address field
+      // Identify new coordinates
       addressFieldCoord = {
         x: pinMain.offsetLeft - shift.x,
         y: pinMain.offsetTop - shift.y
       };
 
-      if ((addressFieldCoord.x >= draggingLimit.xMin && addressFieldCoord.x <= draggingLimit.xMax) && (addressFieldCoord.y >= draggingLimit.yMin && addressFieldCoord.y <= draggingLimit.yMax)) {
+      if ((addressFieldCoord.x >= dragPinLimits.minX && addressFieldCoord.x <= dragPinLimits.maxX) &&
+      (addressFieldCoord.y >= dragPinLimits.minY && addressFieldCoord.y <= dragPinLimits.maxY)) {
         pinMain.style.left = addressFieldCoord.x + 'px';
         pinMain.style.top = addressFieldCoord.y + 'px';
 
-        // Write identified coordinates to address field
-        address.value = 'x: ' + addressFieldCoord.x + ' , ' + 'y: ' + (addressFieldCoord.y + PIN_SIZES.height / 2);
+        // Set new coordinates into address field
+        address.value = 'x: ' + addressFieldCoord.x + ', ' + 'y: ' + (addressFieldCoord.y + PIN_SIZES.height / 2);
       }
+
+
     };
 
-    var mouseUper = function (upEvent) {
-      upEvent.preventDefault();
+    var mouseUper = function (upEvt) {
+      upEvt.preventDefault();
 
       document.removeEventListener('mousemove', mouseMover);
       document.removeEventListener('moveup', mouseUper);
     };
 
-    document.addEventListener('mouseup', mouseMover);
-    document.addEventListener('moveup', mouseUper);
+    document.addEventListener('mousemove', mouseMover);
+    document.addEventListener('mouseup', mouseUper);
+
   });
 })();
