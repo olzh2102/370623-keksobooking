@@ -1,9 +1,9 @@
 'use strict';
 
 (function () {
-  // var PIN_SIZES = {width: 62, height: 82};
+  var PIN_SIZES = {width: 62, height: 82};
 
-  // var COORDINATE_LIMITS = {bottom: 500, top: 100};
+  var COORDINATE_LIMITS = {bottom: 500, top: 100};
 
   // Find map
   var map = document.querySelector('.map');
@@ -56,4 +56,71 @@
   // Close popup
   closePopup.addEventListener('click', window.card.popupCloser);
 
+  // Draggable pin
+  var address = document.querySelector('#address');
+
+  pinMain.style.zIndex = 2;
+
+  var draggingLimit = {
+    xMin: 0,
+    xMax: map.clientWidth,
+    yMin: COORDINATE_LIMITS.top - PIN_SIZES.height / 2,
+    yMax: COORDINATE_LIMITS.bottom - PIN_SIZES.height / 2,
+  };
+
+  // Identify initial coordinates
+  var addressFieldCoord = {
+    x: pinMain.offsetLeft,
+    y: pinMain.offsetTop
+  };
+
+  // Display initial coordinates of main pin of address fieldset
+  address.value = 'x: ' + addressFieldCoord.x + ' , ' + 'y: ' + (addressFieldCoord.y + PIN_SIZES.height / 2);
+
+  pinMain.addEventListener('mousedown', function (event) {
+    event.preventDefault();
+
+    var startingCoords = {
+      x: event.clientX,
+      y: event.clientY
+    };
+
+    var mouseMover = function (moveEvent) {
+      moveEvent.preventDefault();
+
+      var shift = {
+        x: startingCoords.x - moveEvent.clientX,
+        y: startingCoords.y - moveEvent.clientY
+      };
+
+      startingCoords = {
+        x: moveEvent.clientX,
+        y: moveEvent.clientY
+      };
+
+      // Identify new coordinates for address field
+      addressFieldCoord = {
+        x: pinMain.offsetLeft - shift.x,
+        y: pinMain.offsetTop - shift.y
+      };
+
+      if ((addressFieldCoord.x >= draggingLimit.xMin && addressFieldCoord.x <= draggingLimit.xMax) && (addressFieldCoord.y >= draggingLimit.yMin && addressFieldCoord.y <= draggingLimit.yMax)) {
+        pinMain.style.left = addressFieldCoord.x + 'px';
+        pinMain.style.top = addressFieldCoord.y + 'px';
+
+        // Write identified coordinates to address field
+        address.value = 'x: ' + addressFieldCoord.x + ' , ' + 'y: ' + (addressFieldCoord.y + PIN_SIZES.height / 2);
+      }
+    };
+
+    var mouseUper = function (upEvent) {
+      upEvent.preventDefault();
+
+      document.removeEventListener('mousemove', mouseMover);
+      document.removeEventListener('moveup', mouseUper);
+    };
+
+    document.addEventListener('mouseup', mouseMover);
+    document.addEventListener('moveup', mouseUper);
+  });
 })();
