@@ -1,6 +1,10 @@
 'use strict';
 
 (function () {
+  // var PIN_SIZES = {width: 62, height: 82};
+
+  // var COORDINATE_LIMITS = {bottom: 500, top: 100};
+
   // Find map
   var map = document.querySelector('.map');
 
@@ -51,4 +55,5 @@
 
   // Close popup
   closePopup.addEventListener('click', window.card.popupCloser);
+
 })();
