@@ -37,7 +37,7 @@
       elem.disabled = false;
     });
 
-    mapPins.forEach(function (elem, i) {
+    mapPins.forEach(window.showCard/* function (elem, i) {
       window.generic.showElement(elem);
 
       elem.addEventListener('click', function () {
@@ -47,7 +47,7 @@
         window.card.outputMapCard(i);
         document.addEventListener('keydown', window.card.popupEscCloser);
       });
-    });
+    } */);
   };
 
   // Activate forms and pins on mouseup action
