@@ -1,9 +1,11 @@
 'use strict';
 
 (function () {
+  // var popup = document.querySelector('.popup');
 
   // Find card template
-  var mapCardTemplate = document.querySelector('template').content.querySelector('article.map__card');
+  var mapCardTemplate = document.querySelector('template').content.querySelector('.map__card');
+  var cardMapElement = mapCardTemplate.cloneNode(true);
 
   // Create map offer card
   var generateRoomsGuestsString = function (rooms, guests) {
@@ -25,7 +27,7 @@
   };
 
   var renderCardMap = function (ad) {
-    var cardMapElement = mapCardTemplate.cloneNode(true);
+
     cardMapElement.querySelector('.popup__avatar').src = ad.author.avatar;
     cardMapElement.querySelector('h3').textContent = ad.offer.title;
     cardMapElement.querySelector('h3+p').textContent = ad.offer.address;
@@ -40,6 +42,7 @@
     return cardMapElement;
   };
 
+
   window.card = {
 
     // Output map card offer
@@ -51,12 +54,6 @@
       return target.insertBefore(mapCardFragment, target.querySelector('.map__filters-container'));
     },
 
-    popupEscCloser: function (event) {
-      window.generic.escEvent(event, function () {
-        window.card.popupCloser();
-      });
-    },
-
     popupCloser: function () {
       var popup = document.querySelector('.popup');
       var mapPins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
@@ -65,6 +62,12 @@
       window.pin.removePinActive(mapPins);
 
       document.removeEventListener('keydown', window.card.popupEscCloser);
+    },
+
+    popupEscCloser: function (event) {
+      window.generic.escEvent(event, function () {
+        window.card.popupCloser();
+      });
     }
   };
   // Output map card
