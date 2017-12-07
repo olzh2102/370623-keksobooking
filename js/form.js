@@ -1,92 +1,38 @@
 'use strict';
 
 (function () {
-  var ERROR_ON_VALIDATION = '0 0 5px 2px red';
+  // Find validation form
+  var noticeForm = document.querySelector('.notice__form');
 
-  var houseMinPrice = {
-    bungalo: 0,
-    flat: 1000,
-    house: 5000,
-    palace: 10000
-  };
-  // --- Валидация формы ---
-  var title = document.querySelector('#title');
-  var address = document.querySelector('#address');
-  var price = document.querySelector('#price');
-
-  var validityChecker = function (field) {
-    var currentField = field;
-
-    if (!currentField.validity.valid) {
-      currentField.style.boxShadow = ERROR_ON_VALIDATION;
-
-      if (currentField.validity.valueMissing) {
-        currentField.setCustomValidity('это поле должно быть заполненным');
-      } else if (currentField.validity.tooShort || currentField.value.length < currentField.minLength) {
-        currentField.setCustomValidity('название не может содержать менее ' + currentField.minLength + ' символов');
-      } else if (currentField.validity.tooLong) {
-        currentField.setCustomValidity('название не может содержать более ' + currentField.maxLength + ' символов');
-      } else if (currentField.validity.rangeUnderflow) {
-        currentField.setCustomValidity('число должно находится в диапазоне от ' + currentField.min + ' до ' + currentField.max);
-      } else {
-        currentField.setCustomValidity('');
-        currentField.style.boxShadow = '';
-      }
-    }
+  var syncValues = function (element, value) {
+    element.value = value;
   };
 
-  title.addEventListener('input', function () {
-    validityChecker(title);
-  });
-  title.addEventListener('change', function () {
-    validityChecker(title);
-  });
+  var syncPrices = function (element, value) {
+    element.value = value;
+    element.min = value;
+  };
 
-  address.addEventListener('invalid', function () {
-    validityChecker(address);
-  });
-  address.addEventListener('change', function () {
-    validityChecker(address);
-  });
-
-  price.addEventListener('invalid', function () {
-    validityChecker(price);
-  });
-  price.addEventListener('change', function () {
-    validityChecker(price);
-  });
-
-  // --- Зависимость ---
+  // Sync timein and timeout
   var timeIn = document.querySelector('#timein');
   var timeOut = document.querySelector('#timeout');
+  var timeInOptions = window.generic.selectOptionValue(timeIn);
+  var timeOutOptions = window.generic.selectOptionValue(timeOut);
+
+  window.synchronizeField(timeIn, timeOut, timeInOptions, timeOutOptions, syncValues);
+
+  // Sync flat type and price
   var type = document.querySelector('#type');
+  var price = document.querySelector('#price');
+  var flatType = window.generic.selectOptionValue(type);
+  var priceValues = ['1000', '0', '5000', '10000'];
+
+  window.synchronizeField(type, price, flatType, priceValues, syncPrices);
+
+  // Sync room and guest number
   var roomNumber = document.querySelector('#room_number');
   var capacity = document.querySelector('#capacity');
-  // var submit = document.querySelector('.form__submit');
 
-  // --- Синхронизация времени въезда/выезда ---
-  var syncTimeInTimeOut = function (mainSelect, dependSelect) {
-    dependSelect[mainSelect.selectedIndex].selected = true;
-  };
-  timeIn.addEventListener('change', function (event) {
-    syncTimeInTimeOut(event.target, timeOut);
-  });
-  timeOut.addEventListener('change', function (event) {
-    syncTimeInTimeOut(event.target, timeIn);
-  });
-
-  // --- Синхронизация типы домов и цены ---
-  var syncHousePrice = function (event) {
-    price.min = houseMinPrice[event.target.value];
-
-    if (+price.value < +price.min) {
-      price.value = price.min;
-    }
-  };
-
-  type.addEventListener('change', syncHousePrice);
-
-  // --- Синхронизация число комнат и гостей ---
   var syncRoomGuest = function (event) {
     if (event.target.value === '2') {
       capacity.value = 2;
@@ -96,28 +42,41 @@
       capacity.value = 0;
     }
   };
-
   roomNumber.addEventListener('change', syncRoomGuest);
-  /*
-  // --- Обработка события клика по submit ---
-  var formValidator = function () {
-    var formFields = noticeForm.elements;
-    var validAll = true;
 
-    for (var i = 0; i < formFields.length; i++) {
-      if (!formFields[i].validity.valid) {
-        formFields[i].style.boxShadow = ERROR_ON_VALIDATION;
-        validAll = false;
-      } else {
-        formFields[i].style.boxShadow = '';
-      }
-    }
-    if (validAll) {
+  // Submit and reset buttons
+  noticeForm.addEventListener('submit', function (event) {
+    event.preventDefault();
+
+    if (!formValidator()) {
+      addInvalid(noticeForm.elements);
+    } else {
       noticeForm.submit();
       noticeForm.reset();
     }
+  });
+
+  noticeForm.addEventListener('change', function (event) {
+    if (event.target.checkValidity()) {
+      event.target.style.border = null;
+    }
+  });
+
+  var formValidator = function () {
+    for (var i = 0; i < noticeForm.length; i++) {
+      if (noticeForm.elements[i].checkValidity()) {
+        return false;
+      }
+    }
+    return true;
   };
 
-  submit.addEventListener('click', formValidator);
-   */
+  var addInvalid = function (array) {
+    for (var i = 0; i < array.length; i++) {
+      if (!array[i].validity.valid) {
+        array[i].style.border = '2px solid red';
+      }
+    }
+  };
+
 })();

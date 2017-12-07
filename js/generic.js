@@ -38,6 +38,18 @@
 
     showElement: function (target) {
       target.classList.remove('hidden');
+    },
+
+    selectOptionValue: function (select) {
+      var selectOptions = select.querySelectorAll('option');
+      var optionValue = null;
+      var optionValues = [];
+
+      for (var i = 0; i < selectOptions.length; i++) {
+        optionValue = selectOptions[i].getAttribute('value');
+        optionValues[i] = optionValue;
+      }
+      return optionValues;
     }
   };
 })();
