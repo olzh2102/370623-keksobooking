@@ -6,6 +6,7 @@
 
   // Find map pins template
   var mapTemplate = document.querySelector('template').content.querySelector('.map__pin');
+
   // Find map pins div
   var mapPinsItem = document.querySelector('.map__pins');
   var mapPins = document.querySelectorAll('.map__pin:not(.map__pin--main)');
