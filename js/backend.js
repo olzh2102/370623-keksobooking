@@ -55,6 +55,7 @@
 
     error: function (message) {
       var errorBlock = document.createElement('div');
+
       errorBlock.style.width = 50 + '%';
       errorBlock.style.height = 120 + 'px';
       errorBlock.style.position = 'fixed';
