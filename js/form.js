@@ -50,10 +50,11 @@
 
     if (!formValidator()) {
       addInvalid(noticeForm.elements);
-    } else {
-      noticeForm.submit();
-      noticeForm.reset();
     }
+
+    window.backend.save(new FormData(noticeForm), function () {
+      noticeForm.reset();
+    }, window.backend.error);
   });
 
   noticeForm.addEventListener('change', function (event) {
