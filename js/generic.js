@@ -25,6 +25,28 @@
         array[i].classList.remove(className);
       }
     },
+
+    addClassToRandom: function (array, className, number) {
+      for (var i = 0; i < number; i++) {
+        var randomIndex = Math.floor(Math.random() * array.length);
+        array[randomIndex].classList.add(className);
+      }
+    },
+
+    removeClassFromRandom: function (array, className, number) {
+      for (var i = 0; i < number; i++) {
+        if (i < array.length) {
+          var randomIndex = Math.floor(Math.random() * array.length);
+          if (array[randomIndex].classList.contains(className)) {
+            array[randomIndex].classList.remove(className);
+          } else {
+            i--;
+          }
+        } else {
+          break;
+        }
+      }
+    },
     ESC_KEY: 27,
     ENTER_KEYCODE: 13,
   };

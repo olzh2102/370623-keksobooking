@@ -12,6 +12,7 @@
         if (evt.currentTarget === pins[j] || evt.keyCode === window.generic.ENTER_KEYCODE) {
           pins[j].classList.add('map__pin--active');
           cards[j].classList.remove('hidden');
+          document.addEventListener('keydown', cardEscCloseHandler);
         }
 
         if (evt.currentTarget !== pins[j] && window.generic.findClass(pins[j], 'map__pin--active')) {
@@ -26,6 +27,7 @@
         if (!window.generic.findClass(cards[j], 'hidden') && window.generic.findClass(pins[j], 'map__pin--active')) {
           cards[j].classList.add('hidden');
           pins[j].classList.remove('map__pin--active');
+          document.addEventListener('keydown', cardEscCloseHandler);
         }
       }
     };
@@ -43,19 +45,15 @@
     };
 
     // Adding event listeners
+    pins.forEach(function (pin) {
+      pin.addEventListener('click', pinsClickHandler);
+    });
 
-    (function () {
-      var cardClose = null;
-
-      for (var i = 0; i < pins.length; i++) {
-        pins[i].addEventListener('click', pinsClickHandler);
-
-        cardClose = cards[i].querySelector('.popup__close');
-        cardClose.addEventListener('click', cardCloseClickHandler);
-        cardClose.addEventListener('keydown', cardEnterCloseHandler);
-      }
-    })();
-
-    document.addEventListener('keydown', cardEscCloseHandler);
+    var cardClose;
+    cards.forEach(function (card) {
+      cardClose = card.querySelector('.popup__close');
+      cardClose.addEventListener('click', cardCloseClickHandler);
+      cardClose.addEventListener('keydown', cardEnterCloseHandler);
+    });
   };
 })();

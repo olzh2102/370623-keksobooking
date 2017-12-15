@@ -13,10 +13,18 @@
 
     var fragmentPins = document.createDocumentFragment();
     var fragmentCards = document.createDocumentFragment();
+    var card;
+    var pin;
 
     for (var i = 0; i < ads.length; i++) {
-      fragmentPins.appendChild(window.pin.renderPinMap(ads[i]));
-      fragmentCards.appendChild(window.card.renderCardMap(ads[i]));
+      card = window.pin.renderPinMap(ads[i]);
+      pin = window.card.renderCardMap(ads[i]);
+
+      card.setAttribute('id', 'user' + (i + 1));
+      pin.setAttribute('id', 'user' + (i + 1));
+
+      fragmentCards.appendChild(card);
+      fragmentPins.appendChild(pin);
     }
 
     // Hiding elements

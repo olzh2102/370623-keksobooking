@@ -40,6 +40,7 @@
       cardMapElement.querySelector('.popup__features').innerHTML = '';
       cardMapElement.querySelector('.popup__features').innerHTML = generateFeaturesString(ad.offer.features);
       cardMapElement.querySelector('p:nth-of-type(5)').textContent = ad.offer.description;
+      cardMapElement.classList.add('hidden');
       ad.offer.photos.forEach(function (photoUrl) {
         var photo = document.createElement('img');
         photo.style.width = OFFER_PHOTO_WIDTH + 'px';
