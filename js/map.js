@@ -107,6 +107,8 @@
 
   });
 
+
+/*
   // Filter
   var filtersContainer = document.querySelector('.map__filters-container');
   var mapFilters = Array.from(filtersContainer.querySelectorAll('.map-filter'));
@@ -168,5 +170,5 @@
         window.generic.removeClassFromRandom(usersPinsArray, 'hidden', (MAX_PINS - visiblePins.length));
         break;
     }
-  });
+  }); */
 })();

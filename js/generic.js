@@ -73,19 +73,44 @@
       });
     },
 
-    compareArraysById: function (inputArray, filteredArray) {
-      var visibleArray = window.generic.findVisibleElements(inputArray);
-      console.log(visibleArray);
-      inputArray.forEach(function (it) {
-        it.classList.add('hidden');
-        var itId = it.getAttribute('id');
-        filteredArray.map(function (item) {
-          if (itId === item) {
-            it.classList.remove('hidden');
-            visibleArray.push(it);
-          }
-        });
+    checkElementId: function (array, element) {
+      return array.some(function (it) {
+        return it === element;
       });
+    },
+
+    compareArraysById: function (inputArray, filteredArray) {
+
+      var output = inputArray.filter(function (it) {
+        var itId = it.getAttribute('id');
+
+        if (window.generic.checkElementId(filteredArray, itId)) {
+          if (it.filtered === false) {
+            return false;
+          } else {
+            it.filtered = true;
+
+            if (it.classList.contains('hidden')) {
+              it.classList.remove('hidden');
+            }
+            return it;
+          }
+        } else {
+          it.filtered = false;
+
+          if (!it.classList.contains('hidden')) {
+            it.classList.add('hidden');
+          }
+          return false;
+        }
+
+      });
+      console.dir(output);
+    },
+
+    getFilteredArray: function (array) {
+      array = window.generic.compareArraysById();
+      return array;
     },
 
     ESC_KEY: 27,
