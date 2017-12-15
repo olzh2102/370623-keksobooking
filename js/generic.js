@@ -29,9 +29,9 @@
     },
 
     removeClassFromAll: function (array, className) {
-      for (var i = 0; i < array.length; i++) {
-        array[i].classList.remove(className);
-      }
+      array.forEach(function (elem) {
+        elem.classList.remove(className);
+      });
     },
 
     addClassToRandom: function (array, className, number) {

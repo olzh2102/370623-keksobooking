@@ -109,6 +109,7 @@
 
   // Filter
   var filtersContainer = document.querySelector('.map__filters-container');
+  var mapFilters = Array.from(filtersContainer.querySelectorAll('.map-filter'));
   var houseType = filtersContainer.querySelector('#housing-type');
   var housePrice = filtersContainer.querySelector('#housing-price');
   var roomsNumber = filtersContainer.querySelector('#housing-rooms');
@@ -136,10 +137,7 @@
         break;
 
       case 'any':
-        var visiblePins = usersPinsArray.filter(function (pin) {
-          var visiblePin = !pin.classList.contains('hidden');
-          return visiblePin;
-        });
+        var visiblePins = window.generic.findVisibleElements(usersPinsArray);
         window.generic.removeClassFromRandom(usersPinsArray, 'hidden', (MAX_PINS - visiblePins.length));
         break;
     }
