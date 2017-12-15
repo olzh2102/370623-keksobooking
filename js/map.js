@@ -7,24 +7,28 @@
   var pinMain = map.querySelector('.map__pin--main');
   var noticeForm = document.querySelector('.notice__form');
 
+  var MAX_PINS = 5;
+
   // Activation of pins and form
   var mouseupPageActivater = function (evt) {
     evt.preventDefault();
 
-    var usersPins = document.querySelectorAll('.map__pins .hidden');
-    window.generic.removeClassFromAll(usersPins, 'hidden');
+    if (map.classList.contains('map--faded')) {
+      var userPins = document.querySelectorAll('.map__pin--user');
+      var userCards = document.querySelectorAll('.popup');
 
-    map.classList.remove('map--faded');
+      map.classList.remove('map--faded');
+      noticeForm.classList.remove('notice__form--disabled');
 
-    noticeForm.classList.remove('notice__form--disabled');
+      var fieldsets = noticeForm.querySelectorAll('fieldset');
+      fieldsets.forEach(function (elem) {
+        elem.disabled = false;
+      });
 
-    var fieldsets = noticeForm.querySelectorAll('fieldset');
-    fieldsets.forEach(function (elem) {
-      elem.disabled = false;
-    });
-
+      window.generic.removeClassFromRandom(userPins, 'hidden', MAX_PINS);
+      window.showCard(userPins, userCards);
+    }
     pinMain.removeEventListener('mouseup', mouseupPageActivater);
-
   };
 
   pinMain.addEventListener('mouseup', mouseupPageActivater);
@@ -101,5 +105,70 @@
     document.addEventListener('mousemove', mouseMover);
     document.addEventListener('mouseup', mouseUper);
 
+  });
+
+  // Filter
+  var filtersContainer = document.querySelector('.map__filters-container');
+  var houseType = filtersContainer.querySelector('#housing-type');
+  var housePrice = filtersContainer.querySelector('#housing-price');
+  var roomsNumber = filtersContainer.querySelector('#housing-rooms');
+  var guestsNumber = filtersContainer.querySelector('#housing-guests');
+  var featuresFilter = filtersContainer.querySelector('#housing-features');
+
+  houseType.addEventListener('change', function () {
+    var usersPinsArray = Array.from(document.querySelectorAll('.map__pin--user'));
+    var usersCardsArray = Array.from(document.querySelectorAll('.popup'));
+
+    switch (houseType.value) {
+      case 'flat':
+        var flatUsersById = window.generic.filterArrayByValue(usersCardsArray, 'h4', 'Квартира');
+        window.generic.compareArraysById(usersPinsArray, flatUsersById);
+        break;
+
+      case 'house':
+        var houseUsersById = window.generic.filterArrayByValue(usersCardsArray, 'h4', 'Дом');
+        window.generic.compareArraysById(usersPinsArray, houseUsersById);
+        break;
+
+      case 'bungalo':
+        var bungaloUsersById = window.generic.filterArrayByValue(usersCardsArray, 'h4', 'Лачуга');
+        window.generic.compareArraysById(usersPinsArray, bungaloUsersById);
+        break;
+
+      case 'any':
+        var visiblePins = usersPinsArray.filter(function (pin) {
+          var visiblePin = !pin.classList.contains('hidden');
+          return visiblePin;
+        });
+        window.generic.removeClassFromRandom(usersPinsArray, 'hidden', (MAX_PINS - visiblePins.length));
+        break;
+    }
+  });
+
+  housePrice.addEventListener('change', function () {
+    var usersPinsArray = Array.from(document.querySelectorAll('.map__pin--user'));
+    var usersCardsArray = Array.from(document.querySelectorAll('.popup'));
+
+    switch (housePrice.value) {
+      case 'middle':
+        var middlePriceId = window.generic.filtersArrayByRange(usersCardsArray, '.popup__price', 10000, 50000);
+        window.generic.compareArraysById(usersPinsArray, middlePriceId);
+        break;
+
+      case 'low':
+        var lowPriceId = window.generic.filtersArrayByRange(usersCardsArray, '.popup__price', 0, 10000);
+        window.generic.compareArraysById(usersPinsArray, lowPriceId);
+        break;
+
+      case 'high':
+        var highPriceId = window.generic.filtersArrayByRange(usersCardsArray, '.popup__price', 50000, 100000);
+        window.generic.compareArraysById(usersPinsArray, highPriceId);
+        break;
+
+      case 'any':
+        var visiblePins = window.generic.findVisibleElements(usersPinsArray);
+        window.generic.removeClassFromRandom(usersPinsArray, 'hidden', (MAX_PINS - visiblePins.length));
+        break;
+    }
   });
 })();

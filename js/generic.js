@@ -20,6 +20,14 @@
       return element.classList.contains(className);
     },
 
+    findVisibleElements: function (array) {
+      var visibleArray = array.filter(function (elem) {
+        var visibleElement = !elem.classList.contains('hidden');
+        return visibleElement;
+      });
+      return visibleArray;
+    },
+
     removeClassFromAll: function (array, className) {
       for (var i = 0; i < array.length; i++) {
         array[i].classList.remove(className);
@@ -47,6 +55,39 @@
         }
       }
     },
+
+    filterArrayByValue: function (array, option, value) {
+      return array.filter(function (it) {
+        return it.querySelector(option).textContent === value;
+      }).map(function (it) {
+        return it.getAttribute('id');
+      });
+    },
+
+    filtersArrayByRange: function (array, option, min, max) {
+      return array.filter(function (it) {
+        var value = parseInt(it.querySelector(option).textContent, 10);
+        return value > min && value <= max;
+      }).map(function (it) {
+        return it.getAttribute('id');
+      });
+    },
+
+    compareArraysById: function (inputArray, filteredArray) {
+      var visibleArray = window.generic.findVisibleElements(inputArray);
+      console.log(visibleArray);
+      inputArray.forEach(function (it) {
+        it.classList.add('hidden');
+        var itId = it.getAttribute('id');
+        filteredArray.map(function (item) {
+          if (itId === item) {
+            it.classList.remove('hidden');
+            visibleArray.push(it);
+          }
+        });
+      });
+    },
+
     ESC_KEY: 27,
     ENTER_KEYCODE: 13,
   };
