@@ -2,104 +2,110 @@
 
 
 (function () {
+  var similarPins = [];
 
-  var similarAds = [];
   var map = document.querySelector('.map');
   var mapPins = document.querySelector('.map__pins');
   var filtersContainer = map.querySelector('.map__filters-container');
 
-  // Load users ads
-
+  // --- Load clients' ads from server ---
   var getData = function (data) {
-
-    similarAds = data;
-
-    // Creating and appending ads to fragments
-
-    var fragmentPins = document.createDocumentFragment();
-    var fragmentCards = document.createDocumentFragment();
-    var MAX_ADS = 5;
-    var card;
-    var pin;
-
-    for (var i = 0; i < MAX_ADS.length; i++) {
-      card = window.pin.renderPinMap(similarAds[i]);
-      pin = window.card.renderCardMap(similarAds[i]);
-
-      card.setAttribute('id', 'user' + (i + 1));
-      pin.setAttribute('id', 'user' + (i + 1));
-
-      fragmentCards.appendChild(card);
-      fragmentPins.appendChild(pin);
-    }
-
-    // Hiding elements
-
-    var usersPins = fragmentPins.querySelectorAll('.map__pin--users');
-    var usersCards = fragmentCards.querySelectorAll('.popup');
-
-    // Adding class hidden to all pins and cards
-    var addClass = function (array, classname) {
-      for (var j = 0; j < array.length; j++) {
-        array[j].classList.add(classname);
-      }
-    };
-    addClass(usersCards, 'hidden');
-    addClass(usersPins, 'hidden');
-
-    // Add functions show/hide card
-
-    window.showCard(usersPins, usersCards);
-
-    // Add fragments into DOM
-
-    var map = document.querySelector('.map');
-    window.mapPins = document.querySelector('.map__pins');
-    var filtersContainer = map.querySelector('.map__filters-container');
-
-    window.mapPins.appendChild(fragmentPins);
-    map.insertBefore(fragmentCards, filtersContainer);
-
+    similarPins = data;
   };
 
   window.backend.load(getData, window.backend.error);
 
-  var filtersContainer = document.querySelector('.map__filters-container');
-  var mapFilters = Array.from(filtersContainer.querySelectorAll('.map-filter'));
+  // --- Filtering pins ---
   var houseType = filtersContainer.querySelector('#housing-type');
   var housePrice = filtersContainer.querySelector('#housing-price');
   var roomsNumber = filtersContainer.querySelector('#housing-rooms');
   var guestsNumber = filtersContainer.querySelector('#housing-guests');
   var featuresFilter = filtersContainer.querySelector('#housing-features');
 
+  // filtering by price range
   var priceRange = function (elem) {
     switch (housePrice.value) {
       case 'low':
-        return elem.offer.price < 1000;
+        return elem.offer.price < 10000;
       case 'middle':
-        return elem.offer.price >= 1000 && elem.offer.price <= 10000;
+        return elem.offer.price >= 10000 && elem.offer.price <= 50000;
       case 'high':
-        return elem.offer.price > 10000;
+        return elem.offer.price > 50000;
+      case 'any':
+        return elem;
     }
     return false;
   };
 
+  // filtering by features
+  var features = Array.from(featuresFilter.querySelectorAll('input[name="features"]'));
+  var checkFeatureOptions = function (elem) {
+    var checkedFeatures = features.filter(function (input) {
+      return input.checked;
+    });
+    var checkedFeaturesValues = checkedFeatures.map(function (inputChecked) {
+      return inputChecked.value;
+    });
+    var isContain = function (it) {
+      return elem.indexOf(it) !== -1;
+    };
+    return checkedFeatures === 'undefined' || checkedFeaturesValues.every(isContain);
+  };
+
   var filterByValues = function (elem) {
     return (houseType.value === 'any' || elem.offer.type === houseType.value) && priceRange(elem)
-    && (roomsNumber.value === 'any' || elem.offer.rooms === roomsNumber.value)
-    && (guestsNumber.value === 'any' || elem.offer.guests === guestsNumber.value);
+    && (roomsNumber.value === 'any' || elem.offer.rooms === +roomsNumber.value)
+    && (guestsNumber.value === 'any' || elem.offer.guests === +guestsNumber.value)
+    && checkFeatureOptions(elem.offer.features);
   };
 
-  var clearMap = function () {
+  var cleanMap = function () {
     var usersPins = document.querySelectorAll('.map__pin--user');
+    var usersCards = document.querySelectorAll('.popup');
 
-    usersPins.forEach(function (it) {
-      window.mapPins.removeChild(it);
-    });
+    for (var i = 0; i < usersPins.length; i++) {
+      var pin = usersPins[i];
+      var card = usersCards[i];
+
+      mapPins.removeChild(pin);
+      map.removeChild(card);
+    }
   };
 
+  var updateMap = function () {
+    cleanMap();
+    var filteredAds = similarPins.filter(filterByValues);
+    window.data.completeMap(filteredAds);
+  };
+
+  // Debouncing
   filtersContainer.addEventListener('change', function () {
-    clearMap();
-    similarAds.filter(filterByValues).forEach(window.pin.renderPinMap);
+    window.debounce(updateMap, 500);
   });
+
+  var setElemenetId = function (elem, number) {
+    elem.setAttribute('id', 'user' + number);
+  };
+
+  window.data = {
+    completeMap: function (array) { // window.data.completeMap() used in map
+      var MAX_ADS = 5;
+
+      array = array || similarPins;
+      array = array.slice(0, MAX_ADS);
+
+      for (var i = 0; i < array.length; i++) {
+        var pin = window.pin.renderPinMap(array[i]);
+        var card = window.card.renderCardMap(array[i]);
+
+        setElemenetId(pin, i + 1);
+        setElemenetId(card, i + 1);
+
+        window.showCard(pin, card);
+
+        mapPins.appendChild(pin);
+        map.insertBefore(card, filtersContainer);
+      }
+    }
+  };
 })();
