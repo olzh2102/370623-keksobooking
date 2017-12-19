@@ -69,6 +69,6 @@
       errorBlock.style.border = '3 px solid red';
       errorBlock.textContent = message;
       document.body.insertAdjacentElement('afterbegin', errorBlock);
-    }
+    },
   };
 })();

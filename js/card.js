@@ -1,13 +1,13 @@
 'use strict';
 
 (function () {
-  // var popup = document.querySelector('.popup');
   var OFFER_PHOTO_WIDTH = 52;
 
   // Find card template
   var mapCardTemplate = document.querySelector('template').content.querySelector('.map__card');
 
-  // Create map offer card
+
+  // Room number's ending changes
   var generateRoomsGuestsString = function (rooms, guests) {
     var roomStr;
     if (rooms > 4) {
@@ -18,6 +18,7 @@
     var guestStr = guests === 1 ? ' гостя' : ' гостей';
     return rooms + roomStr + ' для ' + guests + guestStr;
   };
+
   var generateFeaturesString = function (features) {
     var featuresStr = '';
     features.forEach(function (item) {
@@ -25,11 +26,10 @@
     });
     return featuresStr;
   };
-
+  // --- Offer card generation (with photos) ---
   window.card = {
     renderCardMap: function (ad) {
       var cardMapElement = mapCardTemplate.cloneNode(true);
-
       cardMapElement.querySelector('.popup__avatar').src = ad.author.avatar;
       cardMapElement.querySelector('h3').textContent = ad.offer.title;
       cardMapElement.querySelector('small').textContent = ad.offer.address;
@@ -40,6 +40,7 @@
       cardMapElement.querySelector('.popup__features').innerHTML = '';
       cardMapElement.querySelector('.popup__features').innerHTML = generateFeaturesString(ad.offer.features);
       cardMapElement.querySelector('p:nth-of-type(5)').textContent = ad.offer.description;
+      cardMapElement.classList.add('hidden');
       ad.offer.photos.forEach(function (photoUrl) {
         var photo = document.createElement('img');
         photo.style.width = OFFER_PHOTO_WIDTH + 'px';

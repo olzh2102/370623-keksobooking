@@ -1,61 +1,72 @@
-
 'use strict';
 
 (function () {
+  window.showCard = function (button, card) {
+    var clientPins;
+    var clientCards;
 
-  // Function show/hide card
+    var buttonId = button.getAttribute('id');
+    var cardId = card.getAttribute('id');
 
-  window.showCard = function (pins, cards) {
+    var popupClose = card.querySelector('.popup__close');
 
-    var pinsClickHandler = function (evt) {
-      for (var j = 0; j < pins.length; j++) {
-        if (evt.currentTarget === pins[j] || evt.keyCode === window.generic.ENTER_KEYCODE) {
-          pins[j].classList.add('map__pin--active');
-          cards[j].classList.remove('hidden');
-        }
+    // Handlers
 
-        if (evt.currentTarget !== pins[j] && window.generic.findClass(pins[j], 'map__pin--active')) {
-          pins[j].classList.remove('map__pin--active');
-          cards[j].classList.add('hidden');
+    var buttonClickHandler = function (evt) {
+
+      if (evt.currentTarget === button || evt.keyCode === window.generic.ENTER_KEYCODE) {
+        button.classList.add('map__pin--active');
+
+        if (buttonId === cardId) {
+          card.classList.remove('hidden');
+          popupClose.addEventListener('click', cardCloseClickHandler);
+          popupClose.addEventListener('keydown', cardEnterCloseHandler);
+          document.addEventListener('keydown', cardEscCloseHandler);
         }
       }
+
+      clientPins = Array.from(document.querySelectorAll('.map__pin--user'));
+      clientPins.forEach(function (it) {
+        if (it.classList.contains('map__pin--active') && it !== button) {
+          it.classList.remove('map__pin--active');
+        }
+      });
+
+      clientCards = Array.from(document.querySelectorAll('.popup'));
+      clientCards.forEach(function (it) {
+
+        if (!it.classList.contains('hidden') && it !== card) {
+          it.classList.add('hidden');
+        }
+      });
     };
 
     var cardCloseClickHandler = function () {
-      for (var j = 0; j < cards.length; j++) {
-        if (!window.generic.findClass(cards[j], 'hidden') && window.generic.findClass(pins[j], 'map__pin--active')) {
-          cards[j].classList.add('hidden');
-          pins[j].classList.remove('map__pin--active');
-        }
+
+      if (!card.classList.contains('hidden') && button.classList.contains('map__pin--active')) {
+        card.classList.add('hidden');
+        button.classList.remove('map__pin--active');
+        popupClose.removeEventListener('click', cardCloseClickHandler);
+        popupClose.removeEventListener('keydown', cardEnterCloseHandler);
+        document.removeEventListener('keydown', cardEscCloseHandler);
       }
     };
 
     var cardEnterCloseHandler = function (evt) {
+
       if (evt.keyCode === window.generic.ENTER_KEYCODE) {
         cardCloseClickHandler();
       }
     };
 
     var cardEscCloseHandler = function (evt) {
-      if (evt.keyCode === window.generic.ESC_KEY) {
+
+      if (evt.keyCode === window.generic.ESC_KEYCODE) {
         cardCloseClickHandler();
       }
     };
 
-    // Adding event listeners
-
-    (function () {
-      var cardClose = null;
-
-      for (var i = 0; i < pins.length; i++) {
-        pins[i].addEventListener('click', pinsClickHandler);
-
-        cardClose = cards[i].querySelector('.popup__close');
-        cardClose.addEventListener('click', cardCloseClickHandler);
-        cardClose.addEventListener('keydown', cardEnterCloseHandler);
-      }
-    })();
-
-    document.addEventListener('keydown', cardEscCloseHandler);
+    button.addEventListener('click', buttonClickHandler);
   };
+
 })();

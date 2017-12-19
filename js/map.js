@@ -7,35 +7,36 @@
   var pinMain = map.querySelector('.map__pin--main');
   var noticeForm = document.querySelector('.notice__form');
 
-  // Activation of pins and form
+  // --- Activation of pins and form ---
   var mouseupPageActivater = function (evt) {
     evt.preventDefault();
 
-    var usersPins = document.querySelectorAll('.map__pins .hidden');
-    window.generic.removeClassFromAll(usersPins, 'hidden');
-
-    map.classList.remove('map--faded');
-
-    noticeForm.classList.remove('notice__form--disabled');
-
-    var fieldsets = noticeForm.querySelectorAll('fieldset');
-    fieldsets.forEach(function (elem) {
-      elem.disabled = false;
-    });
-
+    if (map.classList.contains('map--faded')) {
+      // Shows the map
+      map.classList.remove('map--faded');
+      // Shows the form
+      noticeForm.classList.remove('notice__form--disabled');
+      // Activates the form
+      var fieldsets = noticeForm.querySelectorAll('fieldset');
+      fieldsets.forEach(function (elem) {
+        elem.disabled = false;
+      });
+      // Completes the map with pins of 5
+      window.data.completeMap();
+    }
     pinMain.removeEventListener('mouseup', mouseupPageActivater);
-
   };
 
   pinMain.addEventListener('mouseup', mouseupPageActivater);
 
-  // Draggable pin
+  // --- Motion of main pin ---
   var PIN_SIZES = {width: 62, height: 82};
   var COORDINATE_LIMITS = {bottom: 500, top: 100};
 
   var address = document.querySelector('#address');
   pinMain.style.zIndex = 100;
 
+  // Main pin limitation across the map
   var dragPinLimits = {
     minX: 0,
     minY: COORDINATE_LIMITS.top - PIN_SIZES.height / 2,
@@ -52,6 +53,7 @@
   // Set initial coordinates into address field
   address.value = 'x: ' + addressFieldCoord.x + ', ' + 'y: ' + (addressFieldCoord.y + PIN_SIZES.height / 2);
 
+  // Action on starting dragging main pin
   pinMain.addEventListener('mousedown', function (evt) {
     evt.preventDefault();
 
@@ -90,7 +92,7 @@
 
 
     };
-
+    // Action on mouseup
     var mouseUper = function (upEvt) {
       upEvt.preventDefault();
 
