@@ -15,50 +15,6 @@
 
   window.backend.load(getData, window.backend.error);
 
-  // --- Filtering pins ---
-  var houseType = filtersContainer.querySelector('#housing-type');
-  var housePrice = filtersContainer.querySelector('#housing-price');
-  var roomsNumber = filtersContainer.querySelector('#housing-rooms');
-  var guestsNumber = filtersContainer.querySelector('#housing-guests');
-  var featuresFilter = filtersContainer.querySelector('#housing-features');
-
-  // filtering by price range
-  var priceRange = function (elem) {
-    switch (housePrice.value) {
-      case 'low':
-        return elem.offer.price < 10000;
-      case 'middle':
-        return elem.offer.price >= 10000 && elem.offer.price <= 50000;
-      case 'high':
-        return elem.offer.price > 50000;
-      case 'any':
-        return elem;
-    }
-    return false;
-  };
-
-  // filtering by features
-  var features = Array.from(featuresFilter.querySelectorAll('input[name="features"]'));
-  var checkFeatureOptions = function (elem) {
-    var checkedFeatures = features.filter(function (input) {
-      return input.checked;
-    });
-    var checkedFeaturesValues = checkedFeatures.map(function (inputChecked) {
-      return inputChecked.value;
-    });
-    var isContain = function (it) {
-      return elem.indexOf(it) !== -1;
-    };
-    return checkedFeatures === 'undefined' || checkedFeaturesValues.every(isContain);
-  };
-
-  var filterByValues = function (elem) {
-    return (houseType.value === 'any' || elem.offer.type === houseType.value) && priceRange(elem)
-    && (roomsNumber.value === 'any' || elem.offer.rooms === +roomsNumber.value)
-    && (guestsNumber.value === 'any' || elem.offer.guests === +guestsNumber.value)
-    && checkFeatureOptions(elem.offer.features);
-  };
-
   var cleanMap = function () {
     var usersPins = document.querySelectorAll('.map__pin--user');
     var usersCards = document.querySelectorAll('.popup');
@@ -74,7 +30,7 @@
 
   var updateMap = function () {
     cleanMap();
-    var filteredAds = similarPins.filter(filterByValues);
+    var filteredAds = similarPins.filter(window.pin.filterByValues);
     window.data.completeMap(filteredAds);
   };
 
