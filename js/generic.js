@@ -3,7 +3,6 @@
 (function () {
 
   window.generic = {
-
     selectOptionValue: function (select) {
       var selectOptions = select.querySelectorAll('option');
       var optionValue = null;
