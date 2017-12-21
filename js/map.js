@@ -1,6 +1,15 @@
 'use strict';
 
 (function () {
+  var PIN_SIZES = {
+    width: 62,
+    height: 82
+  };
+
+  var COORDINATE_LIMITS = {
+    bottom: 500,
+    top: 100
+  };
 
   // Find map, pins and form
   var map = document.querySelector('.map');
@@ -30,16 +39,6 @@
   pinMain.addEventListener('mouseup', mouseupPageActivater);
 
   // --- Moving of main pin ---
-  var PIN_SIZES = {
-    width: 62,
-    height: 82
-  };
-
-  var COORDINATE_LIMITS = {
-    bottom: 500,
-    top: 100
-  };
-
   var address = document.querySelector('#address');
   pinMain.style.zIndex = 100;
 
