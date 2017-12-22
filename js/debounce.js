@@ -3,12 +3,12 @@
 (function () {
   var lastTimeout;
 
-  window.debounce = function (fun, interval) {
+  window.debounce = function (func, interval) {
     if (lastTimeout) {
       window.clearTimeout(lastTimeout);
     }
     lastTimeout = window.setTimeout(function () {
-      fun();
+      func();
     }, interval);
   };
 })();

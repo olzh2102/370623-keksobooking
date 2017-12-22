@@ -1,8 +1,17 @@
 'use strict';
 
 (function () {
+  var PIN_SIZES = {
+    width: 62,
+    height: 82
+  };
 
-  // Find map, pins and forms
+  var COORDINATE_LIMITS = {
+    bottom: 500,
+    top: 100
+  };
+
+  // Find map, pins and form
   var map = document.querySelector('.map');
   var pinMain = map.querySelector('.map__pin--main');
   var noticeForm = document.querySelector('.notice__form');
@@ -29,10 +38,7 @@
 
   pinMain.addEventListener('mouseup', mouseupPageActivater);
 
-  // --- Motion of main pin ---
-  var PIN_SIZES = {width: 62, height: 82};
-  var COORDINATE_LIMITS = {bottom: 500, top: 100};
-
+  // --- Moving of main pin ---
   var address = document.querySelector('#address');
   pinMain.style.zIndex = 100;
 
