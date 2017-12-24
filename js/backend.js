@@ -9,7 +9,6 @@
       xhr.responseType = 'json';
       xhr.addEventListener('load', function () {
         if (xhr.status === 200) {
-          // console.log(xhr);
           onLoad(xhr.response);
         } else {
           onError(xhr.status + ': ' + xhr.statusText);
@@ -53,7 +52,7 @@
       xhr.send(data);
     },
 
-    error: function (message) {
+    throwError: function (message) {
       var errorBlock = document.createElement('div');
 
       errorBlock.style.width = 50 + '%';
@@ -69,6 +68,6 @@
       errorBlock.style.border = '3 px solid red';
       errorBlock.textContent = message;
       document.body.insertAdjacentElement('afterbegin', errorBlock);
-    }
+    },
   };
 })();

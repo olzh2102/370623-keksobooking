@@ -2,52 +2,66 @@
 
 
 (function () {
+  var MAX_ADS = 5;
+  var similarPins = [];
 
-  // Load users ads
+  var map = document.querySelector('.map');
+  var mapPins = document.querySelector('.map__pins');
+  var filtersContainer = map.querySelector('.map__filters-container');
 
+  // --- Load clients' ads from server ---
   var getData = function (data) {
-
-    var ads = data;
-
-    // Creating and appending ads to fragments
-
-    var fragmentPins = document.createDocumentFragment();
-    var fragmentCards = document.createDocumentFragment();
-
-    for (var i = 0; i < ads.length; i++) {
-      fragmentPins.appendChild(window.pin.renderPinMap(ads[i]));
-      fragmentCards.appendChild(window.card.renderCardMap(ads[i]));
-    }
-
-    // Hiding elements
-
-    var usersPins = fragmentPins.querySelectorAll('.map__pin--users');
-    var usersCards = fragmentCards.querySelectorAll('.popup');
-
-    // Adding class hidden to all pins and cards
-    var addClass = function (array, classname) {
-      for (var j = 0; j < array.length; j++) {
-        array[j].classList.add(classname);
-      }
-    };
-    addClass(usersCards, 'hidden');
-    addClass(usersPins, 'hidden');
-
-    // Add functions show/hide card
-
-    window.showCard(usersPins, usersCards);
-
-    // Add fragments into DOM
-
-    var map = document.querySelector('.map');
-    var mapPins = document.querySelector('.map__pins');
-    var filtersContainer = map.querySelector('.map__filters-container');
-
-    mapPins.appendChild(fragmentPins);
-    map.insertBefore(fragmentCards, filtersContainer);
-
+    similarPins = data;
   };
 
-  window.backend.load(getData, window.backend.error);
+  window.backend.load(getData, window.backend.throwError);
 
+  var cleanMap = function () {
+    var usersPins = document.querySelectorAll('.map__pin--user');
+    var usersCards = document.querySelectorAll('.popup');
+
+    for (var i = 0; i < usersPins.length; i++) {
+      var pin = usersPins[i];
+      var card = usersCards[i];
+
+      mapPins.removeChild(pin);
+      map.removeChild(card);
+    }
+  };
+
+  var updateMap = function () {
+    cleanMap();
+    var filteredAds = similarPins.filter(window.pin.filterByValues);
+    window.data.completeMap(filteredAds);
+  };
+
+  // Debouncing
+  filtersContainer.addEventListener('change', function () {
+    window.debounce(updateMap, 500);
+  });
+
+  var setElemenetId = function (elem, number) {
+    elem.setAttribute('id', 'user' + number);
+  };
+
+  window.data = {
+    completeMap: function (array) { // window.data.completeMap() used in map
+
+      array = array || similarPins;
+      array = array.slice(0, MAX_ADS);
+
+      for (var i = 0; i < array.length; i++) {
+        var pin = window.pin.generate(array[i]);
+        var card = window.card.generate(array[i]);
+
+        setElemenetId(pin, i + 1);
+        setElemenetId(card, i + 1);
+
+        window.showCard(pin, card);
+
+        mapPins.appendChild(pin);
+        map.insertBefore(card, filtersContainer);
+      }
+    }
+  };
 })();
