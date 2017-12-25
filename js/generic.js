@@ -10,5 +10,11 @@
     getClass: function (elem, className) {
       return elem.classList.contains(className);
     },
+
+    setErrorPopupTimeout: function (popup, interval) {
+      setTimeout(function () {
+        popup.remove();
+      }, interval);
+    }
   };
 })();

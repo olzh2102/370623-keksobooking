@@ -11,7 +11,7 @@
         if (xhr.status === 200) {
           onLoad(xhr.response);
         } else {
-          onError(xhr.status + ': ' + xhr.statusText);
+          onError('Произошла ошибка: ' + xhr.status + ': ' + xhr.statusText);
         }
       });
 
@@ -36,7 +36,7 @@
         if (xhr.status === 200) {
           onLoad();
         } else {
-          onError(xhr.status + ': ' + xhr.statusText);
+          onError('Произошла ошибка: ' + xhr.status + ': ' + xhr.statusText);
         }
       });
 
@@ -68,6 +68,7 @@
       errorBlock.style.border = '3 px solid red';
       errorBlock.textContent = message;
       document.body.insertAdjacentElement('afterbegin', errorBlock);
+      window.generic.setErrorPopupTimeout(errorBlock, 5000);
     },
   };
 })();
